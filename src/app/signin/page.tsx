@@ -2,28 +2,41 @@
 
 import { Typography, Card, TextField, Button } from "@mui/material"
 import axios from "axios"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
+import React from "react"
 
 function Signin() {
   const router = useRouter();
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
+  const [user, setUser] = React.useState({
+    email: "",
+    password: "",
+  })
+  const [buttonDisabled, setButtonDisabled] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
 
   const handleSignIn = async () => {
     try {
-        const response = await axios.post("/api/signin", {
-          email,
-          password
-        });
+        setLoading(true);
+        const response = await axios.post("/api/signin", user);
         console.log("Login success", response.data);
         router.push("/");
     } catch (error:any) {
         console.log("Login failed", error.message);
     } finally{
-    // setLoading(false);
+    setLoading(false);
     }
 }
+
+    useEffect(() => {
+        if(user.email.length > 0 && user.password.length > 0) {
+            setButtonDisabled(false);
+        } else {
+            setButtonDisabled(true);
+        }
+    }, [user]);
+
   return <div>
   <div style={{
       paddingTop: 150,
@@ -38,9 +51,8 @@ function Signin() {
 <div style={{display: "flex", justifyContent: "center"}}>
   <Card variant={"outlined"} style={{width: 400, padding: 20}}>
       <TextField
-          onChange={(evant11) => {
-              let elemt = evant11.target;
-              setEmail(elemt.value);
+          onChange={(event) => {
+              setUser({...user, email: event.target.value});
           }}
           fullWidth={true}
           label="Email"
@@ -49,7 +61,8 @@ function Signin() {
       <br/><br/>
       <TextField
           onChange={(e) => {
-              setPassword(e.target.value);
+            //   setPassword(e.target.value);
+            setUser({...user, password: e.target.value});
           }}
           fullWidth={true}
           label="Password"
@@ -65,6 +78,9 @@ function Signin() {
       > Signin</Button>
   </Card>
 </div>
+    <div style={{display: "flex", justifyContent: "center"}}>
+        <p>Don't have an account. Visit <Link href="/signup">Signup</Link> page here.</p>
+    </div>
 </div>
 }
 
