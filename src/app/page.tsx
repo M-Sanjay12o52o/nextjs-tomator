@@ -2,8 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, Button } from '@mui/material';
+import { useRouter } from 'next/navigation';
+import axios from "axios"
 
 const Home: React.FC = () => {
+  const router = useRouter();
   const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
   const [isRunning, setIsRunning] = useState(false);
@@ -84,6 +87,15 @@ const Home: React.FC = () => {
     }
   }, [timeRemaining]);
 
+  const logout = async () => {
+    try {
+      await axios.get('/api/logout');
+      router.push('/signin')
+    } catch (error: any) {
+      console.log(error.message);
+    }
+  }
+
   return (
     <div
       style={{
@@ -93,6 +105,7 @@ const Home: React.FC = () => {
         height: '100vh',
       }}
     >
+      <Button onClick={logout}>Logout</Button>
       <Card
         style={{
           height: '500px',

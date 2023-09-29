@@ -4,20 +4,23 @@ import { Typography, Card, TextField, Button } from "@mui/material"
 import axios from "axios"
 import Link from "next/link"
 import {useRouter} from "next/navigation"
-import React, {useState, useEffect} from "react"
+import {useState, useEffect, useRef } from "react"
 
 const Signup = () => {
   // const [username, setUsername] = useState("")
   // const [email, setEmail] = useState("")
   // const [password, setPassword] = useState("")
   const router = useRouter();
-  const [user, setUser] = React.useState({
+  const [user, setUser] = useState({
     username: "",
     email: "",
     password: "",
   })
-  const [buttonDisabled, setButtonDisabled] = React.useState(false);
-  const [loading, setLoading] = React.useState(false);
+  const [buttonDisabled, setButtonDisabled] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  // useRef hook is used to store the form element
+  // const formRef = useRef(null);
 
   const handleSignup = async () => {
     try {
@@ -29,6 +32,9 @@ const Signup = () => {
 
       // Assuming you want to store the token in local storage
       localStorage.setItem("token", response.data.token);
+
+      // Reset the form
+      // formRef.current.reset();
 
       router.push("/signin");
 
