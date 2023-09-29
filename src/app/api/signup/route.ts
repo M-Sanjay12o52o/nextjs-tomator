@@ -1,39 +1,53 @@
-// Next.js API route support: https://nextjs.org/docs/api-routes/introduction
-import type { NextApiRequest, NextApiResponse } from 'next'
+import connect from "../../../dbconfig/dbConfig";
 import { User } from "../../lib/db";
+import { NextRequest, NextResponse } from "next/server";
+import bcryptjs from "bcryptjs";
 import jwt from "jsonwebtoken";
-import connect from '../../../dbconfig/dbConfig';
-import { NextResponse } from 'next/server';
-const SECRET = "SECRET";
 
-type Data = {
-  username: string;
-  email: string;
-  password: string;
-}
+connect()
 
-export async function POST(
-  request: Request,
-  response: Response,
-) {
-    console.log("handler called");
-    await connect()
-    const data: Data = await request.json(); 
-    console.log("data: ", data);
+export async function GET(request: NextRequest){
+    try {
 
-    const { username, email, password } = data;
-    const admin = await User.findOne({ username });
-    if (admin) {
-      // return new Response('Ok');
-      return NextResponse.json({ email: " already exits" });
-    } else {
-        const obj = { username: username, email: email, password: password };
-        const newAdmin = new User(obj);
-        newAdmin.save();
+        const reqBody = await request.json()
+        const {email, password} = reqBody;
+        console.log(reqBody);
 
-        const token = jwt.sign({ username, role: 'user' }, SECRET, { expiresIn: '1h' });
-        return NextResponse.json({ 
-          "message": 'Admin created successfully', "token: ": token
-         })
-    }    
+        //check if user exists
+        const user = await User.findOne({email})
+        if(!user){
+            return NextResponse.json({error: "User does not exist"}, {status: 400})
+        }
+        console.log("user exists");
+        
+        
+        //check if password is correct
+        const validPassword = await bcryptjs.compare(password, user.password)
+        if(!validPassword){
+            return NextResponse.json({error: "Invalid password"}, {status: 400})
+        }
+        console.log(user);
+        
+        //create token data
+        const tokenData = {
+            id: user._id,
+            username: user.username,
+            email: user.email
+        }
+        //create token
+        const token = await jwt.sign(tokenData, process.env.TOKEN_SECRET!, {expiresIn: "1d"})
+
+        const response = NextResponse.json({
+            message: "Login successful",
+            success: true,
+        })
+        response.cookies.set("token", token, {
+            httpOnly: true, 
+            
+        })
+        return response;
+
+    } catch (error: any) {
+        return NextResponse.json({error: error.message}, {status: 500})
+    }
 }

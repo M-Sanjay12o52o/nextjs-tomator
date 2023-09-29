@@ -3,32 +3,27 @@
 import { Typography, Card, TextField, Button } from "@mui/material"
 import axios from "axios"
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 
 function Signin() {
+  const router = useRouter();
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
 
   const handleSignIn = async () => {
     try {
-      const response = await axios.post("/api/signin", {
-        email,
-        password
-      });
-
-      // Assuming the response contains a token upon successful authentication
-      const token = response.data.token;
-
-      // Store the token in local storage
-      localStorage.setItem("token", token);
-
-      // Redirect the user to localhost:3000
-      window.location.href = "http://localhost:3000";
-    } catch (error) {
-      // Handle authentication errors
-      console.error("Sign-in failed:", error);
+        const response = await axios.post("/api/signin", {
+          email,
+          password
+        });
+        console.log("Login success", response.data);
+        router.push("/");
+    } catch (error:any) {
+        console.log("Login failed", error.message);
+    } finally{
+    // setLoading(false);
     }
-  };
-
+}
   return <div>
   <div style={{
       paddingTop: 150,

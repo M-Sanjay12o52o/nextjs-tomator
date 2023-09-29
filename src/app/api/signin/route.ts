@@ -1,4 +1,4 @@
-import { connect } from "@/dbConfig/dbConfig";
+import connect from "../../../dbconfig/dbConfig";
 import { User } from "../../lib/db";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -19,7 +19,6 @@ export async function POST(request: NextRequest) {
     if (password !== user.password) {
       return NextResponse.json({ error: "Invalid password" }, { status: 400 });
     }
-
     // Redirect to localhost:3000
     return NextResponse.redirect("http://localhost:3000");
   } catch (error: any) {
